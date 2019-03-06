@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-    <h2>{{ blog_title }'s blogs}</h2>
+    <h2>{{ blog_title }}'s blogs</h2>
     <a href="/posts/new/{{ blog_id }}"><button class="btn btn-primary">New post</button></a>
     {% if posts| length >0 %}
         {% for post in posts %}

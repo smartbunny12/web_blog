@@ -35,7 +35,8 @@ def login_user():
 
     if User.login_valid(email, password):
         User.login(email)
-    session['email'] = None
+    else:
+        session['email'] = None
 
     return render_template("profile.html", email=session['email'])
 
@@ -49,7 +50,7 @@ def register_user():
 
 
 @app.route('/blogs/<string:user_id>')
-@app.route('/blogs')
+@app.route('/blogs') # if user_id is None
 def user_blogs(user_id=None):
     if user_id is not None:
         user = User.get_by_id(user_id)
@@ -61,13 +62,13 @@ def user_blogs(user_id=None):
     return render_template("user_blogs.html", blogs = blogs, email = user.email)
 
 
-@app.route('/blogs/new', methods = ['POST', 'GET'])
+@app.route('/blogs/new', methods=['POST', 'GET'])
 def create_new_blog():
     if request.method == 'GET':
-        # user just land the page
+        # user just land the page(just arrive the endpoint)
         return render_template('new_blog.html')
     else:
-        #
+        # method = Post: user click the submit button
         title = request.form['title']
         description = request.form['description']
         user = User.get_by_email(session['email'])
@@ -75,10 +76,11 @@ def create_new_blog():
         new_blog = Blog(user.email, title, description, user._id)
         new_blog.save_to_mongo()
 
+        # need to redirect the user to user_blog function
         return make_response(user_blogs(user._id))
 
 
-@app.route('／posts/<string:blog_id>')
+@app.route('/posts/<string:blog_id>')
 def blog_posts(blog_id):
     blog = Blog.from_mongo(blog_id)
     posts = blog.get_posts()
@@ -87,10 +89,10 @@ def blog_posts(blog_id):
 
 
 @app.route('/posts/new/<string:blog_id>', methods = ['POST', 'GET'])
-def create_new_blog(blog_id):
+def create_new_post(blog_id):
     if request.method == 'GET':
         # user just land the page
-        return render_template('new_posts.html', blog_id=blog_id)
+        return render_template('new_post.html', blog_id=blog_id)
     else:
         #
         title = request.form['title']
@@ -99,6 +101,7 @@ def create_new_blog(blog_id):
 
         new_post = Post(blog_id, title, content, user.email)
         new_post.save_to_mongo()
+
 
         return make_response(blog_posts(blog_id))
 
